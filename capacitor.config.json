@@ -1,0 +1,14 @@
+{
+  "appId": "com.alexandrolucian.treino30",
+  "appName": "Treino 30",
+  "webDir": "www",
+  "plugins": {
+    "LocalNotifications": {
+      "iconColor": "#D9411B",
+      "smallIcon": "ic_stat_treino"
+    }
+  },
+  "android": {
+    "backgroundColor": "#111318"
+  }
+}

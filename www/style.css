@@ -1,0 +1,76 @@
+/* Treino 30: ficha de treino de parede, tinta escura, laranja para força, azul para corrida.
+   Fonte do sistema (offline), condensada nos títulos. */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#111318);--ink:light-dark(#15181d,#eef0f3);--mut:light-dark(#5d6470,#a3aab5);--line:light-dark(#e3e6ea,#2a2f37);--card:light-dark(#f4f5f7,#1a1e25);--acc:light-dark(#d9411b,#ff7a50);--run:light-dark(#1f56c9,#7aa6ff);--top:#15181d;--tab:light-dark(#ffffff,#15181d)}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Roboto,sans-serif;overflow-x:clip}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+h1,h2,h3{font-family:"Roboto Condensed","Arial Narrow",system-ui,sans-serif;line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
+h1{font-size:44px}h1 span{font-size:24px;opacity:.6;font-weight:600}
+h2{font-size:24px;margin:26px 0 10px}h3{font-size:19px;margin-bottom:4px}
+a{color:inherit;text-decoration:none}
+.top{background:var(--top);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 46px}
+.top.slim{padding-bottom:22px}
+.kick{font-size:15px;opacity:.75}.sem{font-size:15px;opacity:.75;margin-top:4px}
+.back{display:inline-block;font-size:15px;opacity:.8;margin-bottom:8px;min-height:32px}
+.nav{display:flex;gap:10px;margin-top:16px}
+button{font:600 16px system-ui,sans-serif;min-height:44px;padding:0 16px;border-radius:12px;border:2px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+button:disabled{opacity:.3}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.nav button{min-width:56px;font-size:22px}.nav .hoje{background:#d9411b;border-color:#d9411b;color:#fff;font-size:16px;flex:1}
+.pad{padding:16px}
+.day{display:grid;gap:12px;margin-top:-34px}
+.row{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.thumbbox{display:block;background:var(--bg);border-radius:12px}
+svg.thumb{width:100%;height:auto;display:block}
+.gi svg{width:84px}
+.lab{font-family:"Roboto Condensed","Arial Narrow",system-ui,sans-serif;font-size:21px;font-weight:800;line-height:1.15;display:block}
+.sub{color:var(--mut);font-size:14.5px;margin-top:2px}
+.runc{color:var(--run)}
+.off{opacity:.55}
+select{font:800 19px "Roboto Condensed",system-ui,sans-serif;min-height:44px;padding:0 8px;border-radius:10px;border:2px solid var(--acc);background:var(--bg);color:var(--ink);max-width:100%}
+.dots{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.dot{width:44px;height:44px;border-radius:50%;border:2px solid var(--acc);color:var(--acc);padding:0;font-size:15px}
+.dot.on{background:var(--acc);color:#fff}
+.dot.w{width:auto;border-radius:22px;padding:0 18px}
+.dot.r{border-color:var(--run);color:var(--run)}.dot.r.on{background:var(--run);color:#fff}
+.note{border-left:4px solid var(--acc);padding:6px 0 6px 12px;font-size:15px}
+.small{font-size:13px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px}
+.card svg{background:var(--bg);border-radius:12px;margin-bottom:8px}
+svg.big{width:100%;height:auto;display:block}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;margin-bottom:14px}
+.stage svg{background:var(--bg);border-radius:12px}
+.lead{font-size:17px}
+.steps,.errs{padding-left:22px;margin:0}.steps li,.errs li{margin-bottom:8px}
+.errs li::marker{color:var(--acc)}
+.facts{display:grid;gap:10px;margin-top:14px}.facts.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-top:20px}
+.facts div{background:var(--card);border-radius:12px;padding:10px 12px}.facts b{display:block;font-size:13px;color:var(--mut);font-weight:600}
+svg .s{fill:none;stroke:var(--ink);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+svg.run .s{stroke:var(--run)}svg.run .h{fill:var(--run)}
+svg .h{fill:var(--ink)}
+svg .g{stroke:var(--line);stroke-width:4}
+svg .stp{fill:none;stroke:var(--mut);stroke-width:3}
+.tests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.tests label{font-size:13px;color:var(--mut);display:grid;gap:4px}
+input{font:600 16px system-ui,sans-serif;min-height:44px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);padding:0 10px;width:100%}
+input[type=checkbox]{width:24px;min-height:24px;height:24px;accent-color:#d9411b}
+.win{font-size:20px;font-weight:800;color:var(--acc)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:13px;color:var(--mut)}
+tr.cur td{background:var(--card);font-weight:700}
+tbody tr{cursor:pointer}td.ck{color:var(--acc);font-weight:800;text-align:center}
+.rules{display:grid;gap:12px}.rules div{background:var(--card);border-radius:14px;padding:12px}.rules ul{margin:4px 0 0;padding-left:18px}.rules li{margin-bottom:5px;font-size:15px}
+.status{background:var(--card);border-radius:12px;padding:12px;font-weight:600;margin:12px 0}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.primary{background:#d9411b;border-color:#d9411b;color:#fff}
+.slots{display:grid;gap:8px}
+.slot{display:grid;grid-template-columns:auto minmax(0,1fr) 150px;gap:12px;align-items:center;background:var(--card);border-radius:12px;padding:6px 12px}
+.slot label:first-child{grid-column:1/3}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:var(--tab);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs a{display:grid;justify-items:center;gap:2px;padding:9px 0 8px;font-size:12px;color:var(--mut);min-height:60px}
+.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabs a.on{color:var(--acc);font-weight:700}
+@media(prefers-reduced-motion:reduce){animate{display:none}}
