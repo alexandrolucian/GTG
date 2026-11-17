@@ -39,18 +39,18 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Renomear APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk Treino30-v${{ github.run_number }}.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk GTG-v${{ github.run_number }}.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Treino30-apk
-          path: Treino30-v${{ github.run_number }}.apk
+          name: GTG-apk
+          path: GTG-v${{ github.run_number }}.apk
 
       - name: Publicar na página de Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          name: Treino 30 v${{ github.run_number }}
+          name: GTG v${{ github.run_number }}
           body: Baixe o arquivo .apk abaixo pelo celular e toque para instalar.
-          files: Treino30-v${{ github.run_number }}.apk
+          files: GTG-v${{ github.run_number }}.apk
           make_latest: true

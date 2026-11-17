@@ -232,7 +232,7 @@ async function activate() {
 
 async function testNotif() {
   if (!(await ensurePerms())) return;
-  await LocalNotifications.schedule({ notifications: [{ id: 9999, title: 'Teste do Treino 30', body: 'Se você está vendo isto, os lembretes funcionam.', channelId: 'treino', schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true } }] });
+  await LocalNotifications.schedule({ notifications: [{ id: 9999, title: 'Teste do GTG', body: 'Se você está vendo isto, os lembretes funcionam.', channelId: 'treino', schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true } }] });
   say('Notificação de teste agendada para daqui a 5 segundos.');
 }
 
