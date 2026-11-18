@@ -42,13 +42,30 @@ function gyms() {
 function plan(i, g) {
   const run = RUN[i], rest = run[0] === 'x';
   if (rest) return { i, rest, run, gym: g, p: null, s: null };
-  const sets = SETS[week(i)], reps = pushReps(i);
+  const w = week(i), c = vol();
+  const sets = c.ps[w] ?? SETS[w], reps = c.pr[w] ?? pushReps(i);
+  const sq = [c.ss[w] ?? SQUAT[w][0], c.sr[w] ?? SQUAT[w][1]];
   return {
     i, rest, run, gym: g,
-    p: g === 'Peito' ? [Math.ceil(sets / 2), reps] : [sets, reps],
-    s: g === 'Pernas' ? null : SQUAT[week(i)]
+    p: g === 'Peito' && c.chestHalf ? [Math.ceil(sets / 2), reps] : [sets, reps],
+    s: (g === 'Pernas' && c.legSkip) || sq[0] < 1 ? null : sq
   };
 }
+
+// Volume personalizado: null = automático
+const NIGHT_DEF = { sets: 2, calf: 15, plank: 30, db: 8, bd: 8 };
+function vol() {
+  const v = st.vol || (st.vol = {});
+  for (const k of ['ps', 'pr', 'ss', 'sr']) if (!Array.isArray(v[k])) v[k] = [null, null, null, null];
+  v.night = { ...NIGHT_DEF, ...(v.night || {}) };
+  if (v.chestHalf === undefined) v.chestHalf = 1;
+  if (v.legSkip === undefined) v.legSkip = 1;
+  return v;
+}
+const nightTxt = g => {
+  const n = vol().night, cs = g === 'Pernas' ? n.sets * 2 : n.sets;
+  return `Panturrilha ${cs} × ${n.calf} · prancha ${n.sets} × ${n.plank} s · dead bug ${n.sets} × ${n.db} · bird dog ${n.sets} × ${n.bd} · alongamentos`;
+};
 const allPlans = () => { const G = gyms(); return G.map((g, i) => plan(i, g)); };
 const isDone = q => {
   const k = st.days[q.i]; if (!k || q.rest) return false;
@@ -109,13 +126,12 @@ function renderToday() {
     h += rowEx('flexao', `Flexão: ${q.p[0]} séries × ${q.p[1]}`, 'Espalhadas no dia, com 30 a 60 min entre elas. Nunca até a falha.', dots(q.p[0], 'p', g.p));
     h += q.s ? rowEx('agachamento', `Agachamento: ${q.s[0]} séries × ${q.s[1]}`, 'Junto com as primeiras séries de flexão.', dots(q.s[0], 's', g.s))
              : rowEx('agachamento', 'Agachamento: hoje não', 'Suas pernas já trabalham na academia.', '', true);
-    const pt = q.gym === 'Pernas' ? '4 × 15' : '2 × 15';
-    h += rowEx('deadbug', 'Bloco da noite (6 min)', `Panturrilha ${pt} · prancha 2 × 30 s · dead bug 2 × 8 · bird dog 2 × 8 · alongamentos`, pill('n', g.n));
+    h += rowEx('deadbug', 'Bloco da noite', nightTxt(q.gym), pill('n', g.n));
     h += rowEx('corrida', `<span class="runc">${runTxt(q.run)}</span>`, q.run[0] === 'r' || q.run[0] === 't' ? 'Ritmo de conversa. 5 min de caminhada antes e depois.' : 'Passo firme, pode ser com o cachorro.', pill('r', g.r, 'r'));
     if (cur === 14) h += `<div class="note"><b>Reteste:</b> faça o máximo de flexões pela manhã e registre na aba Plano. As semanas 3 e 4 se ajustam ao novo número.</div>`;
     if (cur === 29) h += `<div class="note"><b>Dia final:</b> reteste o máximo de flexões e compare com as ${st.max0} do início (aba Plano).</div>`;
   }
-  h += `<p class="small">Toque na animação para ver como fazer cada exercício.</p></section>`;
+  h += `<a class="adj" href="#volume">Ajustar séries e repetições ›</a><p class="small">Toque na animação para ver como fazer cada exercício.</p></section>`;
   view.innerHTML = h;
   $('#prev').onclick = () => { if (cur > 0) { cur--; renderToday(); } };
   $('#next').onclick = () => { if (cur < 29) { cur++; renderToday(); } };
@@ -157,6 +173,7 @@ function renderPlan() {
       <label>Reteste dia 30<input type="number" inputmode="numeric" id="m30" value="${st.max30 ?? ''}" placeholder="-"></label>
     </div>
     ${st.max30 ? `<p class="win">De ${st.max0} para ${st.max30} flexões: ${st.max30 - st.max0 >= 0 ? '+' : ''}${st.max30 - st.max0}.</p>` : ''}
+    <a class="adj" href="#volume" style="margin-bottom:12px">Ajustar séries e repetições ›</a>
     <div class="scroll"><table><thead><tr><th>Dia</th><th>Data</th><th>Academia</th><th>Flexão</th><th>Agach.</th><th>Corrida</th><th>✓</th></tr></thead><tbody>
     ${P.map(q => { const d = dateOf(q.i); return `<tr data-i="${q.i}" class="${q.i === ti ? 'cur' : ''}${q.rest ? ' off' : ''}"><td>${q.i + 1}</td><td>${WD[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}</td><td>${q.gym === 'Sem academia' ? '-' : q.gym}</td><td>${q.p ? q.p[0] + '×' + q.p[1] : '-'}</td><td>${q.s ? q.s[0] + '×' + q.s[1] : '-'}</td><td>${runShort(q.run)}</td><td class="ck">${isDone(q) ? '✓' : ''}</td></tr>`; }).join('')}
     </tbody></table></div>
@@ -172,6 +189,39 @@ function renderPlan() {
   }
 }
 
+function renderVolume() {
+  const v = vol(), wi = [0, 7, 14, 21];
+  const cell = (k, w, auto) => `<td><input type="number" inputmode="numeric" min="0" max="99" data-k="${k}" data-w="${w}" value="${v[k][w] ?? ''}" placeholder="${auto}" aria-label="${k} semana ${w + 1}"></td>`;
+  const nf = (k, label, unit = '') => `<div class="slot nf"><label for="n_${k}">${label}</label><input type="number" inputmode="numeric" min="0" max="300" id="n_${k}" data-n="${k}" value="${v.night[k]}">${unit ? `<span class="small">${unit}</span>` : '<span></span>'}</div>`;
+  view.innerHTML = `<header class="top slim"><a class="back" href="#hoje">‹ Hoje</a><h1>Séries e repetições</h1></header><section class="pad">
+    <p class="lead">Ajuste a quantidade de cada semana. Campo vazio usa o valor automático, que aparece em cinza.</p>
+    <h2>Grease the Groove</h2>
+    <div class="scroll"><table class="vol"><thead><tr><th></th><th colspan="2">Flexão</th><th colspan="2">Agachamento</th></tr><tr><th>Semana</th><th>Séries</th><th>Reps</th><th>Séries</th><th>Reps</th></tr></thead><tbody>
+    ${[0, 1, 2, 3].map(w => `<tr><td><b>${w + 1}</b><span class="small"> dias ${wi[w] + 1} a ${w === 3 ? 30 : wi[w] + 7}</span></td>${cell('ps', w, SETS[w])}${cell('pr', w, pushReps(wi[w]))}${cell('ss', w, SQUAT[w][0])}${cell('sr', w, SQUAT[w][1])}</tr>`).join('')}
+    </tbody></table></div>
+    <p class="small">Mais séries que horários de lembrete? Adicione horários na aba Lembretes.</p>
+    <div class="slots">
+      <div class="slot"><input type="checkbox" id="ch" ${v.chestHalf ? 'checked' : ''}><label for="ch">Flexão pela metade no dia de peito</label></div>
+      <div class="slot"><input type="checkbox" id="lg" ${v.legSkip ? 'checked' : ''}><label for="lg">Sem agachamento no dia de perna</label></div>
+    </div>
+    <h2>Bloco da noite</h2>
+    <div class="slots">${nf('sets', 'Séries de cada exercício')}${nf('calf', 'Panturrilha', 'reps')}${nf('plank', 'Prancha', 'seg')}${nf('db', 'Dead bug', 'cada lado')}${nf('bd', 'Bird dog', 'cada lado')}</div>
+    <div class="btns" style="margin-top:20px"><button id="reset">Restaurar padrão</button></div>
+  </section>`;
+  view.querySelectorAll('table.vol input').forEach(inp => inp.onchange = e => {
+    const n = parseInt(e.target.value, 10);
+    v[e.target.dataset.k][+e.target.dataset.w] = Number.isFinite(n) && n >= 0 ? Math.min(n, 99) : null;
+    save(); reschedule();
+  });
+  view.querySelectorAll('[data-n]').forEach(inp => inp.onchange = e => {
+    const n = parseInt(e.target.value, 10), k = e.target.dataset.n;
+    v.night[k] = Number.isFinite(n) && n >= 0 ? n : NIGHT_DEF[k]; save(); renderVolume(); reschedule();
+  });
+  $('#ch').onchange = e => { v.chestHalf = e.target.checked ? 1 : 0; save(); reschedule(); };
+  $('#lg').onchange = e => { v.legSkip = e.target.checked ? 1 : 0; save(); reschedule(); };
+  $('#reset').onclick = () => { delete st.vol; save(); renderVolume(); reschedule(); };
+}
+
 function renderSettings() {
   const slot = (s, i) => `<div class="slot"><input type="checkbox" id="sc${i}" ${s[1] ? 'checked' : ''} aria-label="Ativar horário ${i + 1}"><label for="sc${i}">Série ${i + 1}</label><input type="time" id="st${i}" value="${s[0]}"></div>`;
   view.innerHTML = `<header class="top slim"><h1>Lembretes</h1></header><section class="pad">
@@ -179,8 +229,9 @@ function renderSettings() {
     <div class="status" id="status">${NATIVE ? (st.reminders ? 'Lembretes ativos.' : 'Lembretes desligados.') : 'Os lembretes funcionam no app Android instalado.'}</div>
     <div class="btns"><button id="act" class="primary">${st.reminders ? 'Atualizar lembretes' : 'Ativar lembretes'}</button>${st.reminders ? '<button id="off">Desligar</button>' : ''}<button id="test">Testar em 5 s</button></div>
     <h2>Horários das séries</h2>
-    <p class="small">Dias com menos séries usam os primeiros horários marcados. A semana 4 pede 8.</p>
+    <p class="small">Dias com menos séries usam os primeiros horários marcados. Precisa de mais séries? Adicione horários.</p>
     <div class="slots">${st.slots.map(slot).join('')}</div>
+    <div class="btns" style="margin-top:10px"><button id="addslot">+ Horário</button>${st.slots.length > 1 ? '<button id="delslot">Remover último</button>' : ''}</div>
     <h2>Outros avisos</h2>
     <div class="slots">
       <div class="slot"><input type="checkbox" id="nc" ${st.night[1] ? 'checked' : ''}><label for="nc">Bloco da noite</label><input type="time" id="nt" value="${st.night[0]}"></div>
@@ -194,6 +245,8 @@ function renderSettings() {
     $('#sc' + i).onchange = e => { s[1] = e.target.checked ? 1 : 0; save(); reschedule(); };
     $('#st' + i).onchange = e => { s[0] = e.target.value || s[0]; st.slots.sort((a, b) => a[0].localeCompare(b[0])); save(); renderSettings(); reschedule(); };
   });
+  $('#addslot').onclick = () => { const l = st.slots[st.slots.length - 1][0].split(':').map(Number); const m = Math.min(23 * 60 + 30, l[0] * 60 + l[1] + 60); st.slots.push([`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`, 1]); save(); renderSettings(); reschedule(); };
+  const ds = $('#delslot'); if (ds) ds.onclick = () => { st.slots.pop(); save(); renderSettings(); reschedule(); };
   $('#nc').onchange = e => { st.night[1] = e.target.checked ? 1 : 0; save(); reschedule(); };
   $('#nt').onchange = e => { st.night[0] = e.target.value || st.night[0]; save(); reschedule(); };
   $('#rc').onchange = e => { st.run[1] = e.target.checked ? 1 : 0; save(); reschedule(); };
@@ -251,12 +304,14 @@ async function reschedule() {
   const slots = st.slots.filter(s => s[1]).map(s => s[0]).sort();
   for (let i = t0; i < Math.min(30, t0 + 7); i++) {
     const q = P[i], d = dateOf(i); if (q.rest) continue;
-    const n = q.p[0];
-    for (let k = 0; k < Math.min(n, slots.length); k++) {
-      const sq = q.s && k < q.s[0] ? ` + ${q.s[1]} agachamentos` : '';
-      list.push({ id: (i + 1) * 100 + k, title: `Série ${k + 1} de ${n}`, body: `${q.p[1]} flexões${sq}. Fácil e perfeito, sem falha.`, at: at(d, slots[k]) });
+    const n = Math.max(q.p[0], q.s ? q.s[0] : 0);
+    for (let k = 0; k < Math.min(n, slots.length, 40); k++) {
+      const parts = [];
+      if (k < q.p[0]) parts.push(`${q.p[1]} flexões`);
+      if (q.s && k < q.s[0]) parts.push(`${q.s[1]} agachamentos`);
+      list.push({ id: (i + 1) * 100 + k, title: `Série ${k + 1} de ${n}`, body: `${parts.join(' + ')}. Fácil e perfeito, sem falha.`, at: at(d, slots[k]) });
     }
-    if (st.night[1]) list.push({ id: (i + 1) * 100 + 50, title: 'Bloco da noite', body: 'Panturrilha, prancha, dead bug, bird dog e alongamentos. 6 minutos.', at: at(d, st.night[0]) });
+    if (st.night[1]) list.push({ id: (i + 1) * 100 + 50, title: 'Bloco da noite', body: nightTxt(q.gym) + '.', at: at(d, st.night[0]) });
     if (st.run[1]) list.push({ id: (i + 1) * 100 + 60, title: runTxt(q.run), body: q.run[0] === 'r' || q.run[0] === 't' ? 'Ritmo de conversa. 5 min de caminhada antes.' : 'Caminhada de hoje.', at: at(d, st.run[0]) });
   }
   const notifications = list.filter(x => +x.at > now + 30000).map(x => ({ id: x.id, title: x.title, body: x.body, channelId: 'treino', schedule: { at: x.at, allowWhileIdle: true }, extra: { day: Math.floor(x.id / 100) - 1 } }));
@@ -273,6 +328,7 @@ function route() {
   else if (h.startsWith('ex-')) renderEx(h.slice(3));
   else if (h === 'plano') renderPlan();
   else if (h === 'ajustes') renderSettings();
+  else if (h === 'volume') renderVolume();
   else renderToday();
   window.scrollTo(0, 0);
 }

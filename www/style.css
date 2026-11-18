@@ -74,3 +74,10 @@ tbody tr{cursor:pointer}td.ck{color:var(--acc);font-weight:800;text-align:center
 .tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tabs a.on{color:var(--acc);font-weight:700}
 @media(prefers-reduced-motion:reduce){animate{display:none}}
+.adj{display:flex;align-items:center;justify-content:center;min-height:48px;border:2px solid var(--acc);color:var(--acc);border-radius:14px;font-weight:700;margin-top:4px}
+table.vol input{width:64px;min-height:44px;text-align:center;padding:0 4px}
+table.vol td{white-space:normal;vertical-align:middle}
+table.vol th[colspan]{text-align:center;color:var(--ink);font-size:15px}
+.slot.nf{grid-template-columns:minmax(0,1fr) 84px 64px}
+.slot.nf label:first-child{grid-column:auto}
+.slot.nf input{text-align:center}
